@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./js/billboard.min.css">
+    <style>
+        .plot text{
+            fill: var(--white);
+        }
+        .plot line, #plot .domain{
+            stroke: var(--white);
+        }
+        h3{
+            color: var(--white);
+        }
+        body{
+            margin-top: 2%;
+        }
+    </style>
+    <title>Monte Carlo Integration</title>
+</head>
+<body>
+    <h1 class="main_title">Monte Carlo Integration</h1>
+    <p class="subtitle">Approximation techniques used in physically-based rendering</p>
+    <hr>
+    <div>
+        <h3>Example run</h3>
+        <div id="plot_one_run" class="plot"></div>
+    </div>
+    <div>
+        <h3>Average of 20 runs</h3>
+        <div id="plot_average" class="plot"></div>
+    </div>
+    <div>
+        <h3>Variance of 20 runs</h3>
+        <div id="plot_variance" class="plot"></div>
+    </div>
+    <hr>
+    <div class="explanations">
+        <p>
+            The book <a href="https://www.pbrt.org/">Physically Based Rendering</a>, contains a detailed description of sampling algorithms used in high-quality renderer. <br>
+            The sampling used to generate rays used for ray-tracing plays a crucial role in the final image quality.
+            As the problem of image rendering can be mostly reduced to a (highly complex) <a href="https://en.wikipedia.org/wiki/Rendering_equation">integral</a> to evaluate, Monte Carlo integration provides a way to estimate this integral.
+            <br>
+            Evaluating this integral is far from easy : to avoid launching a high number of rays, we would like to sample the integral so that the Monte Carlo estimation converges quickly to the solution.
+            The plots above show the estimation of a (simple) integral using various distributions the samples are taken from. This demonstrate the following :
+        </p>
+        <ul>
+            <li>In this example the uniform distribution performs better than other distributions. As its variance is smaller it converges faster to a good approximation</li>
+            <li>Sampling points linearly (one after each other, increasingly) has zero variance as it is deterministic. However a good approximation is reached only after scanning the whole interval.</li>
+        </ul>
+        <p>
+            In practice all these samplers do not perform very well. More interesting sampling techniques are to come.<br>
+            The computations are made using a Rust script compiled and embedded as WebAssembly.
+        </p>
+    </div>
+    <script src="./js/d3.min.js"></script>
+    <script src="./js/billboard.min.js"></script>
+    <script type="module">
+        import init, { run } from "./monte_carlo.js"
+
+        const nb_runs = 20
+        const iterations = 3000
+        const nb_intervals = 100
+        const interval = iterations/nb_intervals
+        
+        function run_with_dist(dist, alpha=1, beta=1, a=3, b=5){
+            let result = run(nb_runs, iterations, a, b, interval, dist, alpha, beta)
+            let length = result.length
+            if(length % 3 != 0){
+                console.log("Error in the number of elements from the result")
+            }
+            return {
+                first: result.slice(0, length/3),
+                average: result.slice(length/3, 2*length/3),
+                variance: result.slice(2*length/3, length)
+            }
+        }
+        
+        init().then(() => {
+            const x = Array(nb_intervals).fill(0).map( (_,i) => interval*(i+1) )
+
+            let firsts = []
+            let averages = []
+            let variances = []
+
+            const results = [
+                run_with_dist("Uniform"),
+                run_with_dist("Beta", 1, 1),
+                run_with_dist("Beta", 0.5, 0.5),
+                run_with_dist("Beta", 0.1, 0.1),
+                run_with_dist("Linear"),
+            ]
+
+            const labels = [
+                "Uniform",
+                "Beta α=1 β=1",
+                "Beta α=0.5 β=0.5",
+                "Beta α=0.1 β=0.1",
+                "Linear"
+            ]
+
+            results.forEach( (res, i) => {
+                firsts.push([labels[i],    ...res.first])
+                averages.push([labels[i],  ...res.average])
+                variances.push([labels[i], ...res.variance])
+            })
+
+            generatePlot("#plot_one_run", x, firsts)
+            generatePlot("#plot_average", x, averages)
+            generatePlot("#plot_variance", x, variances)
+
+        })
+        function generatePlot(bindto, x, columns){
+            bb.generate({
+                bindto: bindto,
+                data: {
+                    type: "line",
+                    x: "x",
+                    columns: [ ["x", ...x], ...columns]
+                },
+                axis: {
+                    x: {label: "Iterations"},
+                    y: {label: "Value"},
+                },
+            })
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+/*@font-face {
+    font-family: Assistant;
+    src: url("ressources/Assistant.ttf");
+}
+
+@font-face {
+    font-family: Manrope;
+    src: url("ressources/Manrope.ttf");
+}*/
+
+*{
+    --background-color : hsl(202, 16%,  11%);
+
+    --green-light :      hsl(157, 84%, 84%);
+    --green :            hsl(157, 46%, 46%);
+
+    --white :            hsl(0,   0%,   84%);
+    --black :            hsl(202, 80%,  4%);
+
+    margin : 0;
+    padding: 0;
+    font-family: "Assistant", Arial, Helvetica, sans-serif;
+}
+
+html{
+    width  : 100vw;
+    height : 100vh;
+}
+
+body{
+    background-color: var(--background-color);
+    margin:calc( max(0%, 15% - 75px) + 15px);
+}
+
+/****** Text ******/
+h1{
+    color: var(--white);
+    font-size:   50pt;
+    line-height: 65px;
+    font-family: "Manrope", Arial, Helvetica, sans-serif;
+}
+
+.subtitle{
+    color: var(--green-light);
+    font-size:   20pt;
+    line-height: 20px;
+    margin-top:  15px;
+    margin-bottom: 5px;
+}
+
+p, label, summary{
+    color: var(--white);
+}
+
+/****** Architecture ******/
+#main_content{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.section_elem{
+    height: 180px;
+    width:  180px;
+    border: 1px solid var(--black);
+    background-color: var(--white);
+    position: relative;
+    margin: calc(0.7vw + 1px);
+}
+
+.section_elem img{
+    width:   100%;
+    height : 100%;
+}
+
+.section_elem div{
+    position: absolute;
+    top:86%;
+    width:100%;
+    text-align: center;
+}
+
+/****** Various ******/
+hr{
+    border-color: var(--green-light);
+    margin-top :    10px;
+    margin-bottom : 10px;
+}
+
+details{
+    cursor: pointer;
+}
+
+aside{
+    max-width: 600px;
+    align-self: start;
+}
+
+input{
+    margin: 3px;
+    margin-right: 10px;
+}
+
+summary{
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+canvas{
+    width:100%;
+}

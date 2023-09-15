@@ -40,18 +40,18 @@
     <div class="explanations">
         <p>
             The book <a href="https://www.pbrt.org/">Physically Based Rendering</a>, contains a detailed description of sampling algorithms used in high-quality renderer. <br>
-            The sampling used to generate rays used for ray-tracing plays a crucial role in the final image quality.
+            The sampling used to generate rays used for ray tracing plays a crucial role in the final image quality.
             As the problem of image rendering can be mostly reduced to a (highly complex) <a href="https://en.wikipedia.org/wiki/Rendering_equation">integral</a> to evaluate, Monte Carlo integration provides a way to estimate this integral.
             <br>
-            Evaluating this integral is far from easy : to avoid launching a high number of rays, we would like to sample the integral so that the Monte Carlo estimation converges quickly to the solution.
-            The plots above show the estimation of a (simple) integral using various distributions the samples are taken from. This demonstrate the following :
+            Evaluating this integral is far from easy: to avoid launching a high number of rays, we would like to sample the integral so that the Monte Carlo estimation converges quickly to the solution.
+            The plots above show the estimation of a (simple) integral using various distributions the samples are taken from. This demonstrates the following :
         </p>
         <ul>
-            <li>In this example the uniform distribution performs better than other distributions. As its variance is smaller it converges faster to a good approximation</li>
-            <li>Sampling points linearly (one after each other, increasingly) has zero variance as it is deterministic. However a good approximation is reached only after scanning the whole interval.</li>
+            <li>In this example, the uniform distribution performs better than other distributions. As its variance is smaller it converges faster to a good approximation</li>
+            <li>Sampling points linearly (one after the other, increasingly) has zero variance as it is deterministic. However, a good approximation is reached only after scanning the whole interval.</li>
         </ul>
         <p>
-            In practice all these samplers do not perform very well. More interesting sampling techniques are to come.<br>
+            In practice, all these samplers do not perform very well. More interesting sampling techniques are to come.<br>
             The computations are made using a Rust script compiled and embedded as WebAssembly.
         </p>
     </div>

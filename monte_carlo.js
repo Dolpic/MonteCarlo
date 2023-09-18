@@ -125,6 +125,7 @@ function getArrayF64FromWasm0(ptr, len) {
     return getFloat64Memory0().subarray(ptr / 8, ptr / 8 + len);
 }
 /**
+* @param {number} f_nb
 * @param {number} nb_runs
 * @param {number} nb_samples
 * @param {number} a
@@ -135,12 +136,12 @@ function getArrayF64FromWasm0(ptr, len) {
 * @param {number} beta
 * @returns {Float64Array}
 */
-export function run(nb_runs, nb_samples, a, b, interval, distribution, alpha, beta) {
+export function run(f_nb, nb_runs, nb_samples, a, b, interval, distribution, alpha, beta) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
         const ptr0 = passStringToWasm0(distribution, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
-        wasm.run(retptr, nb_runs, nb_samples, a, b, interval, ptr0, len0, alpha, beta);
+        wasm.run(retptr, f_nb, nb_runs, nb_samples, a, b, interval, ptr0, len0, alpha, beta);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
         var v2 = getArrayF64FromWasm0(r0, r1).slice();

@@ -13,8 +13,20 @@ extern {
     fn log(s: &str);
 }
 
+fn extract_result(res:Result<Vec<f64>, String>) -> Vec<f64>{
+    match res {
+        Ok(x) => return x,
+        Err(msg) => alert_and_panic(msg.as_str())
+    }
+}
+
+fn alert_and_panic(msg: &str) -> !{
+    alert(msg);
+    panic!();
+}
+
 #[wasm_bindgen]
-pub fn run(f_nb:u32, nb_runs:u32, nb_samples:u32, a:f64, b:f64, interval:u32, distribution:&str, alpha:f64, beta:f64) -> Vec<f64> {
+pub fn run(f_nb:u32, nb_runs:u32, nb_samples:u32, a:f64, b:f64, interval:u32, distribution:&str, alpha:f64, beta:f64, stratification:u32) -> Vec<f64> {
     let mut rng = thread_rng();
 
     let nb_dims;
@@ -36,6 +48,10 @@ pub fn run(f_nb:u32, nb_runs:u32, nb_samples:u32, a:f64, b:f64, interval:u32, di
         4 => {
             nb_dims = 3;
             f = &f_4;
+        },
+        5 => {
+            nb_dims = 4;
+            f = &f_5;
         },
         _ => alert_and_panic(format!("Invalid function number : {}", f_nb).as_str())
     }
@@ -97,6 +113,38 @@ pub fn run(f_nb:u32, nb_runs:u32, nb_samples:u32, a:f64, b:f64, interval:u32, di
             let pdf:PDF = &|_x:&Vec<f64>| (1./(b-a)).powi(nb_dims as i32);
             return extract_result(execute_runs(nb_runs, nb_samples, interval, sampler, pdf, &f));
         }
+        "Stratified" => {
+            let nb_splits = stratification as f64;
+            let mut counter = vec![0.; nb_dims];
+            let dist = distribution::Uniform::new(0., (b-a)/nb_splits).unwrap();
+            let sampler:Sampler = &mut || {
+                let mut res:Vec<f64> = counter.clone();
+                counter[0] += 1.;
+                for i in 0..nb_dims {
+                    if counter[i] == nb_splits{
+                        counter[i] = 0.;
+                        if i < nb_dims-1 {
+                            counter[i+1] += 1.;
+                        }
+
+                    }
+                }
+                //log(format!("{:?}", counter).as_str());
+
+                for i in 0..nb_dims {
+                    res[i] = a + (b-a)/(nb_splits)*res[i] + dist.sample(&mut rng);
+                }
+                return res;
+            };
+            let pdf:PDF = &|vec:&Vec<f64>| {
+                let mut res = 1.;
+                for x in vec.iter(){
+                    res *= dist.pdf( (*x-a)%( (b-a)/nb_splits ) )/nb_splits;
+                }
+                return res;
+            };
+            return extract_result(execute_runs(nb_runs, nb_samples, interval, sampler, pdf, &f));
+        }
         _ => alert_and_panic(format!("Invalid distribution : {}", distribution).as_str())
     }
 }
@@ -118,14 +166,6 @@ fn f_4(x:Vec<f64>) -> f64{
     return x[0]*x[0]*x[0] + x[1]*x[1]*x[1] + x[2]*x[2]*x[2];
 }
 
-fn extract_result(res:Result<Vec<f64>, String>) -> Vec<f64>{
-    match res {
-        Ok(x) => return x,
-        Err(msg) => alert_and_panic(msg.as_str())
-    }
-}
-
-fn alert_and_panic(msg: &str) -> !{
-    alert(msg);
-    panic!();
+fn f_5(x:Vec<f64>) -> f64{
+    return 5.*x[0]*x[0]*x[0]*x[0]*x[0] - 10.*x[1]*x[1]*x[1] + 3.*x[2]*x[2]*x[2] - 2.*x[3];
 }

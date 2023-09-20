@@ -34,7 +34,7 @@
     <h1 class="main_title">Monte Carlo Integration</h1>
     <p class="subtitle">Approximation techniques used in physically-based rendering</p>
     <hr>
-    <p>For now, all the integrals are evaluated between 3 and 5, the available integrals are the following : </p>
+    <p>The available integrals are the following : </p>
     <ol>
         <li>
             <math display="inline-block">
@@ -77,9 +77,9 @@
         </li>
         <li>
             <math display="inline-block">
-                <msubsup><mo>∫</mo><mn>3</mn><mn>5</mn></msubsup>
-                <msubsup><mo>∫</mo><mn>3</mn><mn>5</mn></msubsup>
-                <msubsup><mo>∫</mo><mn>3</mn><mn>5</mn></msubsup>
+                <msubsup><mo>∫</mo><mn>-5</mn><mn>5</mn></msubsup>
+                <msubsup><mo>∫</mo><mn>-5</mn><mn>5</mn></msubsup>
+                <msubsup><mo>∫</mo><mn>-5</mn><mn>5</mn></msubsup>
                 <msup><mi>x</mi><mn>3</mn></msup>
                 <mo>+</mo>
                 <msup><mi>y</mi><mn>3</mn></msup>
@@ -89,7 +89,53 @@
                 <mspace width="3px"/><mi>dy</mi>
                 <mspace width="3px"/><mi>dz</mi>
                 <mspace width="10px"/><mo>=</mo>
-                <mn>1632</mn>
+                <mn>0</mn>
+            </math>  
+        </li>
+        <li>
+            <math display="inline-block">
+                <msubsup><mo>∫</mo><mn>-5</mn><mn>5</mn></msubsup>
+                <msubsup><mo>∫</mo><mn>-5</mn><mn>5</mn></msubsup>
+                <msubsup><mo>∫</mo><mn>-5</mn><mn>5</mn></msubsup>
+                <msubsup><mo>∫</mo><mn>-5</mn><mn>5</mn></msubsup>
+                <mn>5</mn><msup><mi>x</mi><mn>5</mn></msup>
+                <mo>-</mo>
+                <mn>10</mn><msup><mi>y</mi><mn>3</mn></msup>
+                <mo>+</mo>
+                <mn>3</mn><msup><mi>z</mi><mn>3</mn></msup>
+                <mo>-</mo>
+                <mn>2</mn><mi>w</mi>
+                <mspace width="3px"/><mi>dx</mi>
+                <mspace width="3px"/><mi>dy</mi>
+                <mspace width="3px"/><mi>dz</mi>
+                <mspace width="3px"/><mi>dw</mi>
+                <mspace width="10px"/><mo>=</mo>
+                <mn>0</mn>
+            </math>  
+        </li>
+        <li>
+            <math display="inline-block">
+                <msubsup><mo>∫</mo><mn>-5</mn><mn>5</mn></msubsup>
+                <msubsup><mo>∫</mo><mn>-5</mn><mn>5</mn></msubsup>
+                <msubsup><mo>∫</mo><mn>-5</mn><mn>5</mn></msubsup>
+                <msubsup><mo>∫</mo><mn>-5</mn><mn>5</mn></msubsup>
+                <msubsup><mo>∫</mo><mn>-5</mn><mn>5</mn></msubsup>
+                <msup><mi>x</mi><mn>3</mn></msup>
+                <mo>+</mo>
+                <msup><mi>y</mi><mn>3</mn></msup>
+                <mo>+</mo>
+                <msup><mi>z</mi><mn>3</mn></msup>
+                <mo>+</mo>
+                <msup><mi>v</mi><mn>3</mn></msup>
+                <mo>+</mo>
+                <msup><mi>w</mi><mn>3</mn></msup>
+                <mspace width="3px"/><mi>dx</mi>
+                <mspace width="3px"/><mi>dy</mi>
+                <mspace width="3px"/><mi>dz</mi>
+                <mspace width="3px"/><mi>dv</mi>
+                <mspace width="3px"/><mi>dw</mi>
+                <mspace width="10px"/><mo>=</mo>
+                <mn>0</mn>
             </math>  
         </li>
     </ol>
@@ -98,8 +144,9 @@
         <option value='{"id":1, "a":3, "b":5}'>1</option>
         <option value='{"id":2, "a":3, "b":5}'>2</option>
         <option value='{"id":3, "a":3, "b":5}'>3</option>
-        <option value='{"id":4, "a":3, "b":5}'>4</option>
-        <option value='{"id":5, "a":-100, "b":100}'>5</option>
+        <option value='{"id":4, "a":-5, "b":5}'>4</option>
+        <option value='{"id":5, "a":-5, "b":5}'>5</option>
+        <option value='{"id":6, "a":-5, "b":5}'>6</option>
     </select>
     <hr>
     <div>
@@ -127,26 +174,38 @@
             <br><br>
             As shown empirically above, the distribution of points changes how fast the algorithm converges to the expected value.
             <br>
-            We can notice the following :
+            We can see the following :
         </p>
         <ul>
             <li>
-                The "Linear" dataset is here as a reference: the interval is equally split into as many points as samples taken. 
-                This explains the linear increase toward a precise value for 1D integrals and the variance of zero. 
+                The "Linear" dataset is here as a reference: the interval is equally split into as many points as samples taken, and then parsed in order. 
+                This explains the linear increase toward a precise value for 1D integrals and why the variance of zero. 
                 However, it performs very poorly for higher dimensions and is even biased if the mean of the sampled points is not the value of the integral itself.
+                Furthermore, as the exact same points are sampled multiple times in the same order, it sometimes leads to a "bouncing" curve.
+                It is definitely a poor (and wrong as it is) choice to evaluate efficiently an integral.
+            </li>
+            <li>
+                The uniform distributions perform better than the beta distributions for simple integrals. 
+                In particular, its variance decreases faster. 
+                This means that on average this distribution will require fewer samples to achieve the same precision as the other distributions.
+                However, this uniform distribution is not the best in a general case, the Monte Carlo estimator works best when the distribution's shape is close to the integrand shape.
             </li>
             <li>The higher the integral dimension, the less precise the result. This is a consequence of the sample space growing with the dimension.</li>
             <li>
-                The uniform distribution performs better than other distributions. 
-                In particular, its variance decreases faster. 
-                This means that on average this distribution will require fewer samples to achieve the same precision as the other distributions.
-                However, this uniform distribution is not the best in a general case, the Monte Carlo estimator works best when the distribution's shape is close to the integrand distribution.
+                To further improve the uniform distribution variance, a technique called stratification is used. 
+                The idea is to split the sampling space into multiple chunks; the uniform sampler will then sample uniformly the same number of points inside each chunk.
+                Intuitively, this avoids samples being "too much grouped", as samples will be spread into the different chunks.
+                <br>
+                The result is a variance decreasing faster, and in turn, the approximation converges faster. 
+                We can observe in the graphs above that stratification improves the variance, and so the algorithm converges faster toward the result.
+                <br>
+                In the labels, "Stratified by X" means that each dimension was split into X chunks.
             </li>
         </ul>
         <br>
         <p>
-            In practice, all these samplers do not perform very well. More interesting sampling techniques are to come.<br>
-            The computations are made using a Rust script compiled and embedded as WebAssembly.
+            In practice, further improvement can be made. More interesting sampling techniques are to come.<br>
+            The computations are performed live and made using a Rust script compiled and embedded as WebAssembly.
         </p>
     </div>
     <script src="./js/d3.min.js"></script>
@@ -156,7 +215,7 @@
         init().then(() => start())
 
         const nb_runs = 150
-        const iterations = 5000
+        const iterations = 4000
         const nb_intervals = 100
         const interval = iterations/nb_intervals
         
@@ -186,10 +245,9 @@
                 run_with_dist("Uniform"),
                 run_with_dist("Beta", 2, 2),
                 run_with_dist("Beta", 0.5, 0.5),
-                run_with_dist("Beta", 1, 5),
                 run_with_dist("Stratified", 0, 0, 2),
                 run_with_dist("Stratified", 0, 0, 5),
-                run_with_dist("Stratified", 0, 0, 10),
+                run_with_dist("Stratified", 0, 0, 10)
             ]
 
             const labels = [
@@ -197,7 +255,6 @@
                 "Uniform",
                 "Beta α=2 β=2",
                 "Beta α=0.5 β=0.5",
-                "Beta α=1 β=5",
                 "Uniform Stratified by 2",
                 "Uniform Stratified by 5",
                 "Uniform Stratified by 10"
